@@ -122,6 +122,12 @@ function makeCollection(Model) {
     some(fn)      { return this._cache.some(fn); },
     map(fn)       { return this._cache.map(fn); },
     forEach(fn)   { return this._cache.forEach(fn); },
+    slice(...args){ return this._cache.slice(...args); },
+    sort(fn)      { return [...this._cache].sort(fn); },
+    reduce(fn, init) { return this._cache.reduce(fn, init); },
+    every(fn)     { return this._cache.every(fn); },
+    flatMap(fn)   { return this._cache.flatMap(fn); },
+    includes(x)   { return this._cache.includes(x); },
     [Symbol.iterator]() { return this._cache[Symbol.iterator](); },
     async push(item) {
       const doc = new Model(item);
