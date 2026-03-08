@@ -37,7 +37,8 @@ router.post('/login', async (req, res) => {
     if (!valid) return res.status(401).json({ error:'Invalid credentials' });
     const token = jwt.sign({ userId:user.id, role:user.role }, JWT_SECRET, { expiresIn:'7d' });
     const { password:_, ...safe } = user;
-    res.json({ token, user:safe, mustChangePassword: !!user.mustChangePassword });
+    const safeUser = {...safe, profile:(safe.profile&&Object.keys(safe.profile).length>0)?safe.profile:null};
+    res.json({ token, user:safeUser, mustChangePassword: !!user.mustChangePassword });
   } catch { res.status(500).json({ error:'Login failed' }); }
 });
 
@@ -268,7 +269,8 @@ router.patch('/notifications/:id/read', authenticate, async (req, res) => {
 
 router.get('/me', authenticate, async (req, res) => {
   const { password:_, ...safe } = req.user;
-  res.json(safe);
+  const safeUser = {...safe, profile:(safe.profile&&Object.keys(safe.profile).length>0)?safe.profile:null};
+  res.json(safeUser);
 });
 
 // ── First-run setup: register the first admin ──────────────────────────────────
