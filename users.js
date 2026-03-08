@@ -18,8 +18,8 @@ router.get('/agent/dashboard', authenticate, async (req, res) => {
     totalOnboarded: req.user.totalOnboarded || myAll.length,
     activePolicies: myPolicies.length,
     pendingKYC,
-    riders:  myRiders.map(({ password, ...u }) => u),
-    members: myMembers.map(({ password, ...u }) => u),
+    riders:  myRiders.map(({ password, ...u }) => ({...u, profile: (u.profile && Object.keys(u.profile).length>0)?u.profile:null})),
+    members: myMembers.map(({ password, ...u }) => ({...u, profile: (u.profile && Object.keys(u.profile).length>0)?u.profile:null})),
   });
 });
 
@@ -97,7 +97,10 @@ router.get('/admin/dashboard', authenticate, requireAdmin, async (req, res) => {
     recentClaims,
     claimsByType,
     suspended: db.users.filter(u => u.suspended).length,
-    allUsers: db.users.filter(u => u.role !== 'admin').map(({ password, ...u }) => u),
+    allUsers: db.users.filter(u => u.role !== 'admin').map(({ password, ...u }) => ({
+      ...u,
+      profile: (u.profile && Object.keys(u.profile).length > 0) ? u.profile : null
+    })),
   });
   } catch(e) { console.error('Dashboard error:', e.message); res.status(500).json({ error: e.message }); }
 });
@@ -138,7 +141,7 @@ router.get('/admin/pending-onboards', authenticate, requireAdmin, async (req, re
     .map(({ password, ...u }) => {
       const docs = db.documents.filter(d => d.userId === u.id);
       const agent = u.agentId ? db.users.find(a => a.id === u.agentId) : null;
-      return { ...u, docs, agentName: agent?.fullName, agentCode: agent?.agentCode };
+      return { ...u, docs, agentName: agent?.fullName, agentCode: agent?.agentCode, profile: (u.profile && Object.keys(u.profile).length>0)?u.profile:null };
     })
     .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
   res.json({ pending });
